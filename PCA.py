@@ -1,4 +1,5 @@
 import numpy as np
+import matplotlib.pyplot as plt
 from scipy.sparse.linalg import eigsh
 
 dimensions = 2 #Number of dimensions to reduce
@@ -36,6 +37,18 @@ def calculateCoVariance():
     print(pcatransform)
     print(diseases)
 
+    unique = set()
+    dict = {}
+    for i in range(len(diseases)):
+        if (diseases[i] not in unique):
+            unique.add(diseases[i])
+            dict[diseases[i]] = len(unique)
+
+    colors = [dict[k] for k in diseases]
+
+    plt.scatter(pcatransform[0], pcatransform[1], c=colors)
+
+    plt.show()
 
 
 
