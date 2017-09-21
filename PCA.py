@@ -1,9 +1,11 @@
 import numpy as np
 from scipy.sparse.linalg import eigsh
 
+dimensions = 2 #Number of dimensions to reduce
 
 def calculateCoVariance():
     np.set_printoptions(suppress=True)
+
 
     data = np.genfromtxt("pca_a.txt",
                           delimiter='\t'
@@ -26,22 +28,38 @@ def calculateCoVariance():
         for j in range(rows):
             data_clone[j][i] -= mean[i]
 
+    data = np.delete(data, np.s_[-1:], axis = 1)
     data_clone = np.delete(data_clone, np.s_[-1:], axis = 1)
     # print(np.shape(data_clone))
 
     covarianceMatrix = np.cov(data_clone.T)
-    eigenvals, eigenvecs = eigsh(covarianceMatrix, k = 2,  return_eigenvectors=True)
+    eigenvals, eigenvecs = np.linalg.eig(covarianceMatrix);
 
-    print("Vals B", eigenvals)
-    print("Vecs B", eigenvecs)
 
-    # idx = eigenvals.argsort()[-2:][::-1]
-    # eigenvals = eigenvals[idx]
-    # eigenvecs = eigenvecs[:,idx]
-    #
-    # print(covarianceMatrix)
-    # print("Vals A", eigenvals)
-    # print("Vecs A", eigenvecs)
+    eigvecvalMap = []
+    # print(eigenvals.size)
+    for i in range(eigenvals.size):
+        curreigenval = eigenvals[i]
+        curreigenvec = eigenvecs[i]
+        curreigvalvec = [curreigenval, curreigenvec]
+        eigvecvalMap.append(curreigvalvec)
+
+    eigvecvalMap.sort(key=lambda x: x[0], reverse=True)
+
+
+
+    eigvecvalMap = eigvecvalMap[:dimensions]
+
+    finalEigenVec = [eig.pop(1) for eig in eigvecvalMap]
+
+
+
+    # print(finalEigenVec)
+
+    finalEigenVec = np.array(finalEigenVec)
+    pcatransform  = np.dot(finalEigenVec, data.T)
+    print(pcatransform)
+
 
 
 
