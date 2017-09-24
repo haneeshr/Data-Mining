@@ -20,6 +20,8 @@ public class Record {
 			itemSet.add(sb.toString());
 			sb.setLength(0);
 		}
+		
+		Main.globalItemSet.addAll(itemSet);
 	}
 	
 	public boolean isSubSet(List<String> subsetArr) {
@@ -29,5 +31,5 @@ public class Record {
 		}
 		
 		return true;	
-	}
+	} 
 }

@@ -5,42 +5,49 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 public class Main {
 	static Record head;
+	static Set<String> globalItemSet;
+	static List<List<String>> resultList;
+	static int threshold = 70;
 	
 	public static void main(String[] args) throws FileNotFoundException {
 		String currentRecord = "";
-		int inputTransacations = 0;
 		
 		//Read the file
 		BufferedReader fileReader = new BufferedReader(new FileReader("associationruletestdata.txt"));
 		head = null;
 		
 		try {
+			globalItemSet = new HashSet<>();
 			while((currentRecord = fileReader.readLine()) != null) {
 				Record record = new Record(currentRecord);
 				record.next = head;
 				head = record;
-				inputTransacations++;
+//				inputTransacations++;
 			}
+			resultList = new ArrayList<List<String>>();
 			
+			for(String currentItemSet: globalItemSet)
+				resultList.add(new ArrayList<String>() {{ add(currentItemSet);}});
+			resultList = getFrequentItemSets(resultList, threshold);
 			
-			ArrayList<String> tempArrayList1 = new ArrayList<>();
-			ArrayList<String> tempArrayList2 = new ArrayList<>();
-			
-			tempArrayList1.add("G1_Up");
-			tempArrayList2.add("G2_Down");
-			
-			List<List<String>> inputList = new ArrayList<>();
-			inputList.add(tempArrayList1);
-			inputList.add(tempArrayList2);
-			
-			List<List<String>> resultList = new ArrayList<List<String>>();
-			resultList = getFrequentItemSets(inputList, 66);
-			System.out.println("Result " + resultList.toString());
-			
+			int count=0;
+			while(resultList.size()>1) {
+				System.out.println(resultList.size());
+				count += resultList.size();
+				resultList = getSuperSets(resultList);
+			}
+			System.out.println(resultList.size());
+			System.out.println(count + resultList.size());
 			
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -62,8 +69,48 @@ public class Main {
 		return occurenceCount;
 	}
 	
+	public static List<List<String>> getSuperSets(List<List<String>> inputSet){
+		resultList = new ArrayList<List<String>>();
+		
+		Set<String> uniqueItemSet = new TreeSet<>();
+		for(List<String> currentInputSet : inputSet) {
+			for(String currentInputString : currentInputSet) {
+				uniqueItemSet.add(currentInputString);
+				}
+		}
+		
+		List<String> newCombination;
+		
+		for(List<String> currentInputSet: inputSet) {
+			String lastElement=currentInputSet.get(currentInputSet.size()-1);
+			for(String currentElement : uniqueItemSet) {
+				if(currentElement.compareTo(lastElement)>0){
+					newCombination = new ArrayList<String>(currentInputSet);
+					newCombination.add(currentElement);
+					//Validate the combination
+					if(isValidCombination(newCombination, inputSet)) resultList.add(newCombination);
+				}
+			}
+		}
+		
+		return getFrequentItemSets(resultList, threshold);
+	}
 	
-
+	public static boolean isValidCombination(List<String> newCombination, List<List<String>> inputSet) {
+		Set<List<String>> hs=new HashSet<>();
+		for(List<String> eachSet:inputSet) {
+			hs.add(eachSet);
+		}
+		
+		for(int i = 0; i < newCombination.size(); i++) {
+			String poppedElement = newCombination.remove(i);
+			if(!hs.contains(newCombination)) return false;
+			newCombination.add(i,poppedElement);
+		}
+		
+		return true;
+	}
+	
 	public static List<List<String>> getFrequentItemSets(List<List<String>> combinations, int frequencyThreshold){
 		List<List<String>> resultList = new ArrayList<List<String>>();
 		

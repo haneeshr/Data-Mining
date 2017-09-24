@@ -40,13 +40,13 @@ def pca(filename, dimensions):
     finalEigenVec = eigenvecs.T[eigenvalsi[::-1]][:dimensions]
 
     finalEigenVec = np.array(finalEigenVec)
-    pcatransform  = np.dot(finalEigenVec, data.T)
-    # print(pcatransform.T)
+    pcatransform  = np.dot(finalEigenVec, data_clone.T)
+    print(pcatransform.T)
     # print(diseases)
     plot(pcatransform, colors, "PCA on " + filename)
 
     # SVD
-    U,s,V = np.linalg.svd(data);
+    U,s,V = np.linalg.svd(data_clone);
     U = U.T[:2].T
     S = np.zeros((2, 2))
     S[:2, :2] = np.diag(s[:2])
@@ -55,7 +55,7 @@ def pca(filename, dimensions):
 
 
     # t-SNE
-    tsneDim = PCA(n_components=2).fit_transform(data).T
+    tsneDim = PCA(n_components=2).fit_transform(data_clone).T
     plot(tsneDim, colors, "t-SNE on " + filename)
     plt.show()
 
