@@ -1,6 +1,5 @@
 package com.ub.cse.datamining;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -31,5 +30,14 @@ public class Record {
 		}
 		
 		return true;	
-	} 
+	}
+	
+	public boolean isSubSet(Set<String> subsetArr) {
+		
+		for(String subset: subsetArr) {
+			if(!itemSet.contains(subset)) return false;
+		}
+		
+		return true;	
+	}
 }

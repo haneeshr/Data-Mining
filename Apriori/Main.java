@@ -5,10 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -16,13 +13,19 @@ import java.util.TreeSet;
 public class Main {
 	static Record head;
 	static Set<String> globalItemSet;
-	static List<List<String>> resultList;
-	static int threshold = 70;
+	static Set<List<String>> resultList;
+	static int threshold = 50;
+	static List<RuleGroup> ruleGroups=new ArrayList<>();
 	
 	public static void main(String[] args) throws FileNotFoundException {
 		String currentRecord = "";
-		
-		//Read the file
+		ruleGroups.add(new RuleGroup(0));
+		ruleGroups.add(new RuleGroup(1));
+		List<String> itemList =new ArrayList<>();
+		itemList.add("A");
+		itemList.add("B");
+		itemList.add("C");
+		ruleGroups.get(1).validateAndAdd(0, itemList);
 		BufferedReader fileReader = new BufferedReader(new FileReader("associationruletestdata.txt"));
 		head = null;
 		
@@ -32,22 +35,26 @@ public class Main {
 				Record record = new Record(currentRecord);
 				record.next = head;
 				head = record;
-//				inputTransacations++;
 			}
-			resultList = new ArrayList<List<String>>();
+			resultList = new HashSet<List<String>>();
 			
 			for(String currentItemSet: globalItemSet)
 				resultList.add(new ArrayList<String>() {{ add(currentItemSet);}});
 			resultList = getFrequentItemSets(resultList, threshold);
 			
 			int count=0;
-			while(resultList.size()>1) {
+			int length=2;
+			do{
 				System.out.println(resultList.size());
 				count += resultList.size();
 				resultList = getSuperSets(resultList);
-			}
-			System.out.println(resultList.size());
-			System.out.println(count + resultList.size());
+				RuleGroup rulegroup=new RuleGroup(length);
+				ruleGroups.add(rulegroup);
+				rulegroup.generateRules(0.8, resultList);
+				length++;
+			}while(resultList.size()>0); 
+			System.out.println("count :"+count);
+			
 			
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -69,8 +76,19 @@ public class Main {
 		return occurenceCount;
 	}
 	
-	public static List<List<String>> getSuperSets(List<List<String>> inputSet){
-		resultList = new ArrayList<List<String>>();
+	public static int getSupportCount(Set<String> itemSet) {
+		Record tempHead = head;
+		int occurenceCount = 0;
+		while(tempHead != null) {
+			if(tempHead.isSubSet(itemSet)) occurenceCount++;
+			tempHead = tempHead.next;
+		}
+		return occurenceCount;
+	}
+	
+	
+	public static Set<List<String>> getSuperSets(Set<List<String>> inputSet){
+		resultList = new HashSet<List<String>>();
 		
 		Set<String> uniqueItemSet = new TreeSet<>();
 		for(List<String> currentInputSet : inputSet) {
@@ -96,23 +114,19 @@ public class Main {
 		return getFrequentItemSets(resultList, threshold);
 	}
 	
-	public static boolean isValidCombination(List<String> newCombination, List<List<String>> inputSet) {
-		Set<List<String>> hs=new HashSet<>();
-		for(List<String> eachSet:inputSet) {
-			hs.add(eachSet);
-		}
+	public static boolean isValidCombination(List<String> newCombination, Set<List<String>> inputSet) {
 		
 		for(int i = 0; i < newCombination.size(); i++) {
 			String poppedElement = newCombination.remove(i);
-			if(!hs.contains(newCombination)) return false;
+			if(!inputSet.contains(newCombination)) return false;
 			newCombination.add(i,poppedElement);
 		}
 		
 		return true;
 	}
 	
-	public static List<List<String>> getFrequentItemSets(List<List<String>> combinations, int frequencyThreshold){
-		List<List<String>> resultList = new ArrayList<List<String>>();
+	public static Set<List<String>> getFrequentItemSets(Set<List<String>> combinations, int frequencyThreshold){
+		Set<List<String>> resultList = new HashSet<List<String>>();
 		
 		for(List<String> currentCombination: combinations) {
 			int support = getSupportCount(currentCombination);
@@ -123,5 +137,5 @@ public class Main {
 		return resultList;
 	}
 	
-
+	
 }
