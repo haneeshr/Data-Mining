@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Scanner;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -14,8 +15,9 @@ public class Main {
 	static Record head;
 	static Set<String> globalItemSet;
 	static Set<List<String>> resultList;
-	static int threshold = 50;
+	static int threshold = 30;
 	static List<RuleGroup> ruleGroups=new ArrayList<>();
+	static QueryParser queryParser = new QueryParser();
 	
 	public static void main(String[] args) throws FileNotFoundException {
 		String currentRecord = "";
@@ -55,7 +57,15 @@ public class Main {
 			}while(resultList.size()>0); 
 			System.out.println("count :"+count);
 			
-			
+			while(true) {
+				Scanner sc = new Scanner(System.in);
+				System.out.print("Enter template type:");
+				int type = Integer.parseInt(sc.nextLine());
+				System.out.print("Enter query:");
+				String query = sc.nextLine();
+				queryParser.queryParser(type, query);
+				
+			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			System.out.println("Error in Parsing file");

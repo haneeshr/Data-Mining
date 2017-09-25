@@ -90,7 +90,7 @@ public class RuleGroup {
 			int denomenator=Main.getSupportCount(rules[i].body);
 			double confidence=(double)numerator/denomenator;
 			if(confidence>=threshold){
-				System.out.println(rules[i].body +"-->"+rules[i].head);
+//				System.out.println(rules[i].body +"-->"+rules[i].head);
 				addToRuleGroup(rules[i]);
 			}
 		}
