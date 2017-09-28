@@ -55,4 +55,11 @@ public class Rule {
 		}
 	}
 	
+	public String toString() {
+		StringBuilder sb = new StringBuilder();	
+		sb.append(this.body).append(" -> ").append(this.head);		
+		return sb.toString();
+		
+	}
+	
 }

@@ -9,9 +9,14 @@ import java.util.Set;
 
 public class RuleGroup {
 	
+
 	Set<Rule> allRules;
+	Set<Rule> heads;
+	Set<Rule> bodies;
 	Map<String,Set<Rule>> bodyMap;
 	Map<String,Set<Rule>> headMap;
+	
+	
 	int length;
 	
 	RuleGroup(int length){
@@ -19,10 +24,13 @@ public class RuleGroup {
 		allRules=new HashSet<>();
 		bodyMap=new HashMap<>();
 		headMap=new HashMap<>();
+		heads = new HashSet<>();
+		bodies = new HashSet<>();
 	}
 	
 	public void addToRuleGroup(Rule rule){
 		allRules.add(rule);
+		addHeadandBody(rule);
 		for(String each : rule.head){
 			headMap.putIfAbsent(each, new HashSet<>());
 			headMap.get(each).add(rule);
@@ -35,6 +43,11 @@ public class RuleGroup {
 	
 	
 	
+	private void addHeadandBody(Rule rule) {
+		Main.ruleGroups.get(rule.head.size()).heads.add(rule);
+		Main.ruleGroups.get(rule.body.size()).bodies.add(rule);
+	}
+
 	public boolean containsInHead(String item){ return headMap.containsKey(item);}
 	
 	public boolean containsInBody(String item){ return bodyMap.containsKey(item);}
@@ -45,6 +58,7 @@ public class RuleGroup {
 
 	
 	public Set<Rule> getFromHead(String item){
+		
 		Set<Rule> out=new HashSet<>(headMap.get(item));
 		return out;
 	}
@@ -91,6 +105,7 @@ public class RuleGroup {
 			double confidence=(double)numerator/denomenator;
 			if(confidence>=threshold){
 //				System.out.println(rules[i].body +"-->"+rules[i].head);
+				Main.ruleCount++;
 				addToRuleGroup(rules[i]);
 			}
 		}

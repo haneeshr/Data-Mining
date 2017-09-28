@@ -11,7 +11,11 @@ import java.util.Scanner;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.omg.Messaging.SyncScopeHelper;
+
 public class Main {
+	
+	static int ruleCount = 0;
 	static Record head;
 	static Set<String> globalItemSet;
 	static Set<List<String>> resultList;
@@ -48,14 +52,16 @@ public class Main {
 			int length=2;
 			do{
 				System.out.println(resultList.size());
+//				System.out.println(resultList);
 				count += resultList.size();
 				resultList = getSuperSets(resultList);
 				RuleGroup rulegroup=new RuleGroup(length);
 				ruleGroups.add(rulegroup);
-				rulegroup.generateRules(0.8, resultList);
+				rulegroup.generateRules(0.7, resultList);
 				length++;
 			}while(resultList.size()>0); 
 			System.out.println("count :"+count);
+			System.out.println("Rule count " + ruleCount);
 			
 			while(true) {
 				Scanner sc = new Scanner(System.in);
