@@ -19,7 +19,7 @@ public class Main {
 	static Record head;
 	static Set<String> globalItemSet;
 	static Set<List<String>> resultList;
-	static int threshold = 30;
+	static int threshold = 50;
 	static List<RuleGroup> ruleGroups=new ArrayList<>();
 	static QueryParser queryParser = new QueryParser();
 	
@@ -69,7 +69,7 @@ public class Main {
 				int type = Integer.parseInt(sc.nextLine());
 				System.out.print("Enter query:");
 				String query = sc.nextLine();
-				queryParser.queryParser(type, query);
+				queryParser.queryParser(type, query,true);
 				
 			}
 		} catch (IOException e) {

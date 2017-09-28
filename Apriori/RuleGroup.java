@@ -85,7 +85,7 @@ public class RuleGroup {
 	public void validateAndAdd(double threshold,List<String> itemList){
 		int count=1<<itemList.size();
 		Rule rules[]=new Rule[count];
-		int numerator=Main.getSupportCount(itemList);
+		double numerator=(double)Main.getSupportCount(itemList);
 		
 		for(int i=0;i<count;i++) rules[i]=new Rule();
 		
@@ -101,8 +101,8 @@ public class RuleGroup {
 		}
 		
 		for(int i=1;i<count-1;i++){
-			int denomenator=Main.getSupportCount(rules[i].body);
-			double confidence=(double)numerator/denomenator;
+			double denomenator=(double)Main.getSupportCount(rules[i].body);
+			double confidence=numerator/denomenator;
 			if(confidence>=threshold){
 //				System.out.println(rules[i].body +"-->"+rules[i].head);
 				Main.ruleCount++;
