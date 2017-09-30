@@ -11,27 +11,30 @@ import java.util.Scanner;
 import java.util.Set;
 import java.util.TreeSet;
 
-import org.omg.Messaging.SyncScopeHelper;
 
 public class Main {
 	
+	static double supportThreshold    = 0.5;
+	static double confidenceThreshold = 0.7;
+	
 	static int ruleCount = 0;
+	static int fileLength = 0;
 	static Record head;
 	static Set<String> globalItemSet;
 	static Set<List<String>> resultList;
-	static int threshold = 50;
+	
 	static List<RuleGroup> ruleGroups=new ArrayList<>();
 	static QueryParser queryParser = new QueryParser();
 	
 	public static void main(String[] args) throws FileNotFoundException {
+		if(args.length > 0) {
+			supportThreshold = Double.parseDouble(args[0]);
+			confidenceThreshold = Double.parseDouble(args[1]);
+		}
+		
 		String currentRecord = "";
 		ruleGroups.add(new RuleGroup(0));
 		ruleGroups.add(new RuleGroup(1));
-		List<String> itemList =new ArrayList<>();
-		itemList.add("A");
-		itemList.add("B");
-		itemList.add("C");
-		ruleGroups.get(1).validateAndAdd(0, itemList);
 		BufferedReader fileReader = new BufferedReader(new FileReader("associationruletestdata.txt"));
 		head = null;
 		
@@ -41,23 +44,26 @@ public class Main {
 				Record record = new Record(currentRecord);
 				record.next = head;
 				head = record;
+				fileLength++;
 			}
 			resultList = new HashSet<List<String>>();
 			
 			for(String currentItemSet: globalItemSet)
 				resultList.add(new ArrayList<String>() {{ add(currentItemSet);}});
-			resultList = getFrequentItemSets(resultList, threshold);
+			resultList = getFrequentItemSets(resultList, supportThreshold);
 			
+			int frequentItemSetCounter = 0;
 			int count=0;
 			int length=2;
 			do{
-				System.out.println(resultList.size());
+				frequentItemSetCounter++;
+				System.out.println("Number of length "+ frequentItemSetCounter + " frequent itemsets:" + resultList.size());
 //				System.out.println(resultList);
 				count += resultList.size();
 				resultList = getSuperSets(resultList);
 				RuleGroup rulegroup=new RuleGroup(length);
 				ruleGroups.add(rulegroup);
-				rulegroup.generateRules(0.7, resultList);
+				rulegroup.generateRules(confidenceThreshold, resultList);
 				length++;
 			}while(resultList.size()>0); 
 			System.out.println("count :"+count);
@@ -69,8 +75,7 @@ public class Main {
 				int type = Integer.parseInt(sc.nextLine());
 				System.out.print("Enter query:");
 				String query = sc.nextLine();
-				queryParser.queryParser(type, query,true);
-				
+				queryParser.queryParser(type, query, true);
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -127,7 +132,7 @@ public class Main {
 			}
 		}
 		
-		return getFrequentItemSets(resultList, threshold);
+		return getFrequentItemSets(resultList, supportThreshold);
 	}
 	
 	public static boolean isValidCombination(List<String> newCombination, Set<List<String>> inputSet) {
@@ -141,12 +146,14 @@ public class Main {
 		return true;
 	}
 	
-	public static Set<List<String>> getFrequentItemSets(Set<List<String>> combinations, int frequencyThreshold){
+	public static Set<List<String>> getFrequentItemSets(Set<List<String>> combinations, double supportThreshold){
 		Set<List<String>> resultList = new HashSet<List<String>>();
 		
 		for(List<String> currentCombination: combinations) {
 			int support = getSupportCount(currentCombination);
-			if(support >= frequencyThreshold)
+			double supportFactor = (double) support/fileLength;
+			
+			if(supportFactor >= supportThreshold)
 				resultList.add(currentCombination);
 			}
 		

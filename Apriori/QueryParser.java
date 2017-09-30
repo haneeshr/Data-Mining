@@ -13,15 +13,19 @@ public class QueryParser {
 			query = query.substring(index+1).trim();
 			index = query.indexOf(',');
 			String occurence = query.substring(0, index).trim();
+			occurence = occurence.replace("\"","");
 			
 			query = query.substring(index+1).trim();
-			query = query.substring(1, query.length()-1);
+			query = query.replaceAll("\\[","").replaceAll("\\]","");
+			query = query.replaceAll("\\(","").replaceAll("\\)","");
+			
 			String items[] = query.split(",");
 			
 			Set<String> itemSet = new HashSet<>();
 			for(int i=0; i<items.length; i++){
 				items[i] = items[i].trim();
 				items[i] = items[i].replaceAll("'", "");
+				items[i] = items[i].replaceAll("\"", "");
 				itemSet.add(items[i]);
 			}
 			
@@ -52,18 +56,18 @@ public class QueryParser {
 			String query2="";
 
 			query = query.substring(index+1).trim();
-			System.out.println(type1);
-			System.out.println(type2);
-			System.out.println(operation);
-			System.out.println(query);
+//			System.out.println(type1);
+//			System.out.println(type2);
+//			System.out.println(operation);
+//			System.out.println(query);
 
 			if(type1 == 1) {
 				query1 = query.split("]")[0].trim()+"]";
 				query2 = query.split("]")[1].substring(1).trim();
 				
 				if(type2 == 1)query2+="]";
-				System.out.println(query1);
-				System.out.println(query2);
+//				System.out.println(query1);
+//				System.out.println(query2);
 			}else {
 				String[] split = query.split(",");
 				query1 = split[0]+", "+split[1];
@@ -72,8 +76,8 @@ public class QueryParser {
 					query2+=split[i];
 					if(i!=split.length-1)query2+=",";
 				}
-				System.out.println(query1);
-				System.out.println(query2);
+//				System.out.println(query1);
+//				System.out.println(query2);
 			}
 			Set<Rule> result1 = new HashSet<>();
 			Set<Rule> result2 = new HashSet<>();
@@ -94,7 +98,7 @@ public class QueryParser {
 	public Set<Rule> template1(String part, String condition, Set<String> itemSet, boolean diff) {
 		
 		Set<Rule> result = new HashSet<>();
-	
+		
 		if(condition.equalsIgnoreCase("any")) {
 			handleAny(part, result, itemSet);
 		}
@@ -107,17 +111,17 @@ public class QueryParser {
 
 		if(diff){
 			System.out.println(result);
-			System.out.println(result.size());
+			System.out.println("Query result count: " + result.size());
 		}
 		return result;
 		
 	}
 	
 	public void handleAny(String part, Set<Rule> result, Set<String> itemSet) {
-		System.out.println(part);
 		for(int i=0; i < Main.ruleGroups.size(); i++) {
 			RuleGroup currRuleGroup = Main.ruleGroups.get(i);
 			for(String item : itemSet) {
+//				item = item.replace("\"", "");
 				if(part.equalsIgnoreCase("rule") && currRuleGroup.containsInRule(item)) {
 //					System.out.println("Here");
 					result.addAll(currRuleGroup.getFromRule(item));
@@ -136,8 +140,9 @@ public class QueryParser {
 		
 		for(int i=0; i < Main.ruleGroups.size(); i++) {
 			RuleGroup currRuleGroup = Main.ruleGroups.get(i);
-			if(diff)result.addAll(currRuleGroup.allRules);
+			if(diff) result.addAll(currRuleGroup.allRules);
 			for(String item: itemSet) {
+//				item = item.replace("\"", "");
 				if(part.equalsIgnoreCase("rule") && currRuleGroup.containsInRule(item)) {
 					result.removeAll(currRuleGroup.getFromRule(item));
 				}else if(part.equalsIgnoreCase("body") && currRuleGroup.containsInBody(item)) {
@@ -154,14 +159,14 @@ public class QueryParser {
 	public void handleOne(String part, Set<Rule> result, Set<String> itemSet) {
 		
 		Set<String> itemSetClone = new HashSet<>(itemSet);
-
+		
 		for(int i=0; i<Main.ruleGroups.size(); i++) {
 			RuleGroup currRuleGroup = Main.ruleGroups.get(i);
 			for(String item : itemSet) {
+//				item = item.replace("\"", "");
 				Set<Rule> set = new HashSet<>();
 				itemSetClone.remove(item);
 				if(part.equalsIgnoreCase("rule") && currRuleGroup.containsInRule(item)) {
-//					System.out.println("Here");
 					set.addAll(currRuleGroup.getFromRule(item));
 				}
 				else if(part.equalsIgnoreCase("body") && currRuleGroup.containsInBody(item)) {
@@ -194,7 +199,7 @@ public class QueryParser {
 		
 		if(diff){
 			System.out.println(result);
-			System.out.println(result.size());
+			System.out.println("Query result count: " + result.size());
 		}
 		return result;
 	}
@@ -212,7 +217,7 @@ public class QueryParser {
 		}
 
 		System.out.println(result);
-		System.out.println(result.size());
+		System.out.println("Query result count: " + result.size());
 		result.clear();
 	}
 	
