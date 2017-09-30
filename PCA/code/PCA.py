@@ -4,14 +4,20 @@ import matplotlib.pyplot as plt
 from scipy.sparse.linalg import eigsh
 import pandas as pd
 from sklearn.manifold import TSNE
-from sklearn.decomposition import PCA
+from sklearn.decomposition import TruncatedSVD
 
-def plot(reeducedDimensions, colors, title):
-    plt.figure()
-    plt.title(title)
-    plt.xlabel("Priciple Component 1")
-    plt.ylabel("Priciple Component 2")
-    plt.scatter(reeducedDimensions[0], reeducedDimensions[1], c=colors)
+
+def plot(reeducedDimensions, title, diseases):
+    df = pd.DataFrame(dict(x=reeducedDimensions[0], y=reeducedDimensions[1], label=diseases))
+
+    groups = df.groupby('label')
+    fig, ax = plt.subplots()
+    for name, group in groups:
+        ax.plot(group.x, group.y, marker='o', linestyle='', label=name)
+    ax.legend()
+    plt.suptitle(title)
+    plt.xlabel('Principle Component 1')
+    plt.ylabel('Principle Component 2')
 
 def pca(filename, dimensions):
     np.set_printoptions(suppress=True)
@@ -19,18 +25,19 @@ def pca(filename, dimensions):
     pcafile = open(filename, "r").readlines()
     diseases = [x.split("\t")[-1].split("\r")[0] for x in pcafile]
     diseases = np.array(diseases)
-    colors = pd.factorize(diseases)[0]
 
     data = np.genfromtxt(filename,
                           delimiter='\t'
                         )
+    data_clone = np.genfromtxt(filename,
+                                delimiter='\t'
+                                )
 
     # remove last column representing diseases
     data = np.delete(data, np.s_[-1:], axis = 1)
-
+    data_clone = np.delete(data_clone, np.s_[-1:], axis = 1)
 
     # PCA
-    data_clone = data
     mean = np.mean(data,0)
     data_clone -= mean
 
@@ -41,22 +48,18 @@ def pca(filename, dimensions):
 
     finalEigenVec = np.array(finalEigenVec)
     pcatransform  = np.dot(finalEigenVec, data_clone.T)
-    print(pcatransform.T)
-    # print(diseases)
-    plot(pcatransform, colors, "PCA on " + filename)
+    # print(pcatransform.T)
+    plot(pcatransform, "PCA on " + filename, diseases)
 
-    # SVD
-    U,s,V = np.linalg.svd(data_clone);
-    U = U.T[:2].T
-    S = np.zeros((2, 2))
-    S[:2, :2] = np.diag(s[:2])
-    svdDim = np.dot(U,S).T
-    plot(svdDim, colors, "SVD on " + filename)
+    svdDim = TruncatedSVD(n_components=2).fit_transform(data).T
+    # print(svdDim.T)
+    plot(svdDim, "SVD on " + filename, diseases)
 
 
     # t-SNE
-    tsneDim = PCA(n_components=2).fit_transform(data_clone).T
-    plot(tsneDim, colors, "t-SNE on " + filename)
+    tsneDim = TSNE(n_components=2).fit_transform(data_clone).T
+    plot(tsneDim, "t-SNE on " + filename, diseases)
+    # print(tsneDim.T)
     plt.show()
 
 
