@@ -57,7 +57,7 @@ def pca(filename, dimensions):
 
 
     # t-SNE
-    tsneDim = TSNE(n_components=2).fit_transform(data_clone).T
+    tsneDim = TSNE(n_components=2).fit_transform(data).T
     plot(tsneDim, "t-SNE on " + filename, diseases)
     # print(tsneDim.T)
     plt.show()
